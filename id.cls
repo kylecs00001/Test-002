@@ -68,8 +68,6 @@ public with sharing class IdHolidayCheckController {
     // API callout to check if any holidays on ID date
     @AuraEnabled
     public static String makeApiCallout(String idNumber) {
-        
-          System.debug('idNumber' + idNumber);
         Integer year = parseYear(idNumber);
         Integer month = parseMonth(idNumber);
         Integer day = parseDay(idNumber);
@@ -80,24 +78,20 @@ public with sharing class IdHolidayCheckController {
         
         String APIKey = getAPIKEY();
         String endpoint = buildApiEndpoint(APIKey, year, month, day);
-        
-         System.debug('buildApiEndpoint' + buildApiEndpoint(APIKey, year, month, day));
+
                 try{
         
         HttpResponse response = sendHttpRequest(endpoint);
         
         if (response.getStatusCode() == 200) {
-            System.debug('parseApiResponse(response)' + parseApiResponse(response));
             return parseApiResponse(response);
         } else {
-            System.debug('ERROR');
             return null;
         }
     
        
     }
     catch(Exception e){
-
     System.debug('Error : ' + e);
 	return null;
 }
@@ -126,7 +120,6 @@ public with sharing class IdHolidayCheckController {
     
     // Parse SACitizen
     private static Integer parseSACitizen(String idNumber) {
-        System.debug('parseSACitizen' + Integer.valueOf(idNumber.substring(10, 11)));
         return Integer.valueOf(idNumber.substring(10, 11));
     }
     
@@ -147,7 +140,6 @@ public with sharing class IdHolidayCheckController {
     // Get API KEY
     public static String getAPIKEY(){
         List<CALENDARIFIC_API_KEY__mdt> CalendarFields = [ Select Label, CALENDARIFIC_SECRET_API_KEY__c	 FROM CALENDARIFIC_API_KEY__mdt];
-        System.debug('' + CalendarFields[0].CALENDARIFIC_SECRET_API_KEY__c);
         return CalendarFields[0].CALENDARIFIC_SECRET_API_KEY__c;
     }
     
@@ -175,9 +167,7 @@ public with sharing class IdHolidayCheckController {
     private static String parseApiResponse(HttpResponse response) {
         
         if (response.getStatusCode() == 200) {
-            String responseBody = response.getBody();
-            System.debug('RES' + responseBody);
-            
+            String responseBody = response.getBody();       
             
             JSONParser parser = JSON.createParser(responseBody);
             String holidayName;
@@ -197,16 +187,10 @@ public with sharing class IdHolidayCheckController {
                         Map<String, Object> holidayMap = (Map<String, Object>) holidayObject;
                         holidayName = (String) holidayMap.get('name');
                         holidayDescription = (String) holidayMap.get('description');
-                        System.debug('Name: ' + holidayName);
-                        
-                        
-                        System.debug('Description: ' + holidayDescription);
                         
                     }
                 }
             }
-            System.debug('response: ' + response);
-            System.debug('responseBody: ' + responseBody);
             
             if(holidayName != null){
                 return holidayName + ': ' + holidayDescription;
@@ -218,7 +202,6 @@ public with sharing class IdHolidayCheckController {
             
             
         } else {
-            System.debug('ERROR');
             return null;
         }
     }
